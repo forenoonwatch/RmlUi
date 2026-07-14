@@ -11,9 +11,9 @@ namespace Lua {
 template <>
 void ExtraInit<EventParametersProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, EventParametersProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, EventParametersProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, EventParametersProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, EventParametersProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 

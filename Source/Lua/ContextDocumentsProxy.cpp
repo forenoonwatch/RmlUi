@@ -7,9 +7,9 @@ typedef ElementDocument Document;
 template <>
 void ExtraInit<ContextDocumentsProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, ContextDocumentsProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, ContextDocumentsProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, ContextDocumentsProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, ContextDocumentsProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 
@@ -62,6 +62,12 @@ struct ContextDocumentsProxyPairs {
 	}
 	static int constructor(lua_State* L)
 	{
+#ifdef RMLUI_LUAU
+		void* storage = lua_newuserdatadtor(L, sizeof(ContextDocumentsProxyPairs), [](void* data) {
+			static_cast<ContextDocumentsProxyPairs*>(data)->~ContextDocumentsProxyPairs();
+		});
+		luaL_newmetatable(L, "RmlUi::Lua::ContextDocumentsProxyPairs");
+#else
 		void* storage = lua_newuserdata(L, sizeof(ContextDocumentsProxyPairs));
 		if (luaL_newmetatable(L, "RmlUi::Lua::ContextDocumentsProxyPairs"))
 		{
@@ -71,8 +77,9 @@ struct ContextDocumentsProxyPairs {
 			};
 			luaL_setfuncs(L, mt, 0);
 		}
+#endif
 		lua_setmetatable(L, -2);
-		lua_pushcclosure(L, next, 1);
+		RMLUI_LUA_PUSHCCLOSURE(L, next, 1);
 		new (storage) ContextDocumentsProxyPairs();
 		return 1;
 	}

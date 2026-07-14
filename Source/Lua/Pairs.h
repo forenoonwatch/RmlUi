@@ -53,6 +53,12 @@ struct PairsHelper {
 	}
 	static int constructor(lua_State* L, const T& first, const T& last)
 	{
+#ifdef RMLUI_LUAU
+		void* storage = lua_newuserdatadtor(L, sizeof(PairsHelper<T>), [](void* data) {
+			static_cast<PairsHelper*>(data)->~PairsHelper();
+		});
+		luaL_newmetatable(L, "RmlUi::Lua::PairsHelper");
+#else
 		void* storage = lua_newuserdata(L, sizeof(PairsHelper<T>));
 		if (luaL_newmetatable(L, "RmlUi::Lua::PairsHelper"))
 		{
@@ -62,8 +68,9 @@ struct PairsHelper {
 			};
 			luaL_setfuncs(L, mt, 0);
 		}
+#endif
 		lua_setmetatable(L, -2);
-		lua_pushcclosure(L, next, 1);
+		RMLUI_LUA_PUSHCCLOSURE(L, next, 1);
 		new (storage) PairsHelper<T>(first, last);
 		return 1;
 	}
@@ -100,7 +107,7 @@ inline int ipairsaux(lua_State* L)
 inline int MakeIntPairs(lua_State* L)
 {
 	luaL_checkany(L, 1);
-	lua_pushcfunction(L, ipairsaux);
+	RMLUI_LUA_PUSHCFUNCTION(L, ipairsaux);
 	lua_pushvalue(L, 1);
 	lua_pushinteger(L, 0);
 	return 3;

@@ -26,8 +26,10 @@ int LuaPrint(lua_State* L)
 		lua_pushvalue(L, i);     /* value to print */
 		lua_call(L, 1, 1);
 		s = lua_tostring(L, -1); /* get result */
-		if (s == nullptr)
-			return luaL_error(L, "'tostring' must return a string to 'print'");
+		if (s == nullptr) {
+			luaL_error(L, "'tostring' must return a string to 'print'");
+			return 0;
+		}
 		if (i > 1)
 			output += "\t";
 		output += String(s);
@@ -42,7 +44,7 @@ void OverrideLuaGlobalFunctions(lua_State* L)
 {
 	lua_getglobal(L, "_G");
 
-	lua_pushcfunction(L, LuaPrint);
+	RMLUI_LUA_PUSHCFUNCTION(L, LuaPrint);
 	lua_setfield(L, -2, "print");
 
 	lua_pop(L, 1); // pop _G

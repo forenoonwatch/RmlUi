@@ -8,11 +8,11 @@ namespace Lua {
 template <>
 void ExtraInit<ElementChildNodesProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, ElementChildNodesProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementChildNodesProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, ElementChildNodesProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementChildNodesProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
-	lua_pushcfunction(L, ElementChildNodesProxy__len);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementChildNodesProxy__len);
 	lua_setfield(L, metatable_index, "__len");
 }
 

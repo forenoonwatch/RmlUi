@@ -6,16 +6,16 @@ namespace Lua {
 template <>
 void ExtraInit<Colourb>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, Colourbnew);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourbnew);
 	lua_setfield(L, metatable_index - 1, "new");
 
-	lua_pushcfunction(L, Colourb__eq);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourb__eq);
 	lua_setfield(L, metatable_index, "__eq");
 
-	lua_pushcfunction(L, Colourb__add);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourb__add);
 	lua_setfield(L, metatable_index, "__add");
 
-	lua_pushcfunction(L, Colourb__mul);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourb__mul);
 	lua_setfield(L, metatable_index, "__mul");
 
 	return;

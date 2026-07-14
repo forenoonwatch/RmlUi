@@ -22,19 +22,19 @@ namespace Lua {
 		lua_pushvalue(L, methods);                 //[methods = 1] -> [3] = copy of methods table, including modifications above
 		lua_setfield(L, metatable, "__metatable"); //[metatable = 2] -> t[k] = v; t = [2 = ClassMT], k = "__metatable", v = [3 = 1]; pop [3]
 
-		lua_pushcfunction(L, index);           // index = cfunction -> [3] = cfunction
+		RMLUI_LUA_PUSHCFUNCTION(L, index);           // index = cfunction -> [3] = cfunction
 		lua_setfield(L, metatable, "__index"); //[metatable = 2] -> t[k] = v; t = [2], k = "__index", v = cfunc; pop [3]
 
-		lua_pushcfunction(L, newindex);
+		RMLUI_LUA_PUSHCFUNCTION(L, newindex);
 		lua_setfield(L, metatable, "__newindex");
 
-		lua_pushcfunction(L, gc_T);
+		RMLUI_LUA_PUSHCFUNCTION(L, gc_T);
 		lua_setfield(L, metatable, "__gc");
 
-		lua_pushcfunction(L, tostring_T);
+		RMLUI_LUA_PUSHCFUNCTION(L, tostring_T);
 		lua_setfield(L, metatable, "__tostring");
 
-		lua_pushcfunction(L, eq_T);
+		RMLUI_LUA_PUSHCFUNCTION(L, eq_T);
 		lua_setfield(L, metatable, "__eq");
 
 		ExtraInit<T>(L, metatable); // optionally implemented by individual types
@@ -208,7 +208,7 @@ namespace Lua {
 		{
 			lua_pushstring(L, m->name);         // ->[1] = name of function Lua side
 			lua_pushlightuserdata(L, (void*)m); // ->[2] = pointer to the object containing the name and the function pointer as light userdata
-			lua_pushcclosure(L, thunk, 1);      // thunk = function pointer -> pop 1 item from stack, [2] = closure
+			RMLUI_LUA_PUSHCCLOSURE(L, thunk, 1);      // thunk = function pointer -> pop 1 item from stack, [2] = closure
 			lua_settable(L, methods);           // represents t[k] = v, t = [methods] -> pop [2 = closure] to be v, pop [1 = name] to be k
 		}
 
@@ -222,7 +222,7 @@ namespace Lua {
 		}
 		for (luaL_Reg* m = (luaL_Reg*)GetAttrTable<T>(); m->name; m++)
 		{
-			lua_pushcfunction(L, m->func); // -> [2] is this function
+			RMLUI_LUA_PUSHCFUNCTION(L, m->func); // -> [2] is this function
 			lua_setfield(L, -2, m->name);  //[-2 = 1] -> __getters.name = function
 		}
 		lua_pop(L, 1); // pop __getters
@@ -237,7 +237,7 @@ namespace Lua {
 		}
 		for (luaL_Reg* m = (luaL_Reg*)SetAttrTable<T>(); m->name; m++)
 		{
-			lua_pushcfunction(L, m->func); // -> [2] is this function
+			RMLUI_LUA_PUSHCFUNCTION(L, m->func); // -> [2] is this function
 			lua_setfield(L, -2, m->name);  //[-2 = 1] -> __setters.name = function
 		}
 		lua_pop(L, 1); // pop __setters

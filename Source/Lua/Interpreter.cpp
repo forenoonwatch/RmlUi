@@ -7,6 +7,16 @@
 #include <RmlUi/Lua/Interpreter.h>
 #include <RmlUi/Lua/LuaType.h>
 
+#ifdef RMLUI_LUAU
+#include <Luau/Compiler.h>
+
+static int luaL_loadbuffer(lua_State* L, const char* source, size_t size, const char* debugName) {
+	std::string compiled = Luau::compile(std::string(source, size));
+	return luau_load(L, debugName, compiled.data(), compiled.size(), 0);
+}
+
+#endif
+
 namespace Rml {
 namespace Lua {
 
@@ -27,7 +37,7 @@ static int ErrorHandler(lua_State* L)
 static bool LuaCall(lua_State* L, int nargs, int nresults)
 {
 	int errfunc = -2 - nargs;
-	lua_pushcfunction(L, ErrorHandler);
+	RMLUI_LUA_PUSHCFUNCTION(L, ErrorHandler);
 	lua_insert(L, errfunc);
 	if (lua_pcall(L, nargs, nresults, errfunc) != LUA_OK)
 	{

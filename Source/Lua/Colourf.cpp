@@ -6,10 +6,10 @@ namespace Lua {
 template <>
 void ExtraInit<Colourf>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, Colourfnew);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourfnew);
 	lua_setfield(L, metatable_index - 1, "new");
 
-	lua_pushcfunction(L, Colourf__eq);
+	RMLUI_LUA_PUSHCFUNCTION(L, Colourf__eq);
 	lua_setfield(L, metatable_index, "__eq");
 
 	return;

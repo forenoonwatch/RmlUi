@@ -1,7 +1,10 @@
+#include <cstdio> // snprintf for LuaType.inl
+				  //
 #include "RmlUiContextsProxy.h"
 #include "Pairs.h"
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/Core.h>
+
 
 namespace Rml {
 namespace Lua {
@@ -9,9 +12,9 @@ namespace Lua {
 template <>
 void ExtraInit<RmlUiContextsProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, RmlUiContextsProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, RmlUiContextsProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, RmlUiContextsProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, RmlUiContextsProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 

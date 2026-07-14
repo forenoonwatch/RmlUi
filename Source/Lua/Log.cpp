@@ -12,7 +12,7 @@ void ExtraInit<Log>(lua_State* L, int metatable_index)
 	// directly below the metatable
 	int method_index = metatable_index - 1;
 
-	lua_pushcfunction(L, LogMessage);
+	RMLUI_LUA_PUSHCFUNCTION(L, LogMessage);
 	lua_setfield(L, method_index, "Message");
 
 	// construct the "logtype" table, so that we can use the Log::Type enum like Log.logtype.always in Lua for Log::LT_ALWAYS

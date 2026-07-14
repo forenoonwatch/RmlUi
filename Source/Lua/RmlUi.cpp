@@ -1,3 +1,5 @@
+#include <cstdio> // snprintf for LuaType.inl
+
 #include "RmlUi.h"
 #include "ElementInstancer.h"
 #include "LuaElementInstancer.h"

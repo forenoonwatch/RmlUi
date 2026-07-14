@@ -5,22 +5,22 @@ namespace Lua {
 template <>
 void ExtraInit<Vector2i>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, Vector2inew);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2inew);
 	lua_setfield(L, metatable_index - 1, "new");
 
-	lua_pushcfunction(L, Vector2i__mul);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2i__mul);
 	lua_setfield(L, metatable_index, "__mul");
 
-	lua_pushcfunction(L, Vector2i__div);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2i__div);
 	lua_setfield(L, metatable_index, "__div");
 
-	lua_pushcfunction(L, Vector2i__add);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2i__add);
 	lua_setfield(L, metatable_index, "__add");
 
-	lua_pushcfunction(L, Vector2i__sub);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2i__sub);
 	lua_setfield(L, metatable_index, "__sub");
 
-	lua_pushcfunction(L, Vector2i__eq);
+	RMLUI_LUA_PUSHCFUNCTION(L, Vector2i__eq);
 	lua_setfield(L, metatable_index, "__eq");
 
 	// stack is in the same state as it was before it entered this function

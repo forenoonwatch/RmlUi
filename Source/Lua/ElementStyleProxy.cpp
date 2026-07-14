@@ -1,4 +1,7 @@
+#include <cstdio> // snprintf for LuaType.inl
+
 #include "ElementStyleProxy.h"
+#include "lualib.h"
 #include <RmlUi/Core/Element.h>
 #include <RmlUi/Core/PropertiesIteratorView.h>
 #include <RmlUi/Core/Property.h>
@@ -11,13 +14,13 @@ namespace Lua {
 template <>
 void ExtraInit<ElementStyleProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, ElementStyleProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementStyleProxy__index);
 	lua_setfield(L, metatable_index, "__index");
 
-	lua_pushcfunction(L, ElementStyleProxy__newindex);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementStyleProxy__newindex);
 	lua_setfield(L, metatable_index, "__newindex");
 
-	lua_pushcfunction(L, ElementStyleProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementStyleProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 
@@ -96,6 +99,13 @@ struct ElementStyleProxyPairs {
 	}
 	static int constructor(lua_State* L, ElementStyleProxy* obj)
 	{
+#ifdef RMLUI_LUAU
+		void* storage = lua_newuserdatadtor(L, sizeof(ElementStyleProxyPairs), [](void* data) {
+			static_cast<ElementStyleProxyPairs*>(data)->~ElementStyleProxyPairs();
+		});
+
+		luaL_newmetatable(L, "RmlUi::Lua::ElementStyleProxyPairs");
+#else
 		void* storage = lua_newuserdata(L, sizeof(ElementStyleProxyPairs));
 		if (luaL_newmetatable(L, "RmlUi::Lua::ElementStyleProxyPairs"))
 		{
@@ -105,8 +115,9 @@ struct ElementStyleProxyPairs {
 			};
 			luaL_setfuncs(L, mt, 0);
 		}
+#endif
 		lua_setmetatable(L, -2);
-		lua_pushcclosure(L, next, 1);
+		RMLUI_LUA_PUSHCCLOSURE(L, next, 1);
 		new (storage) ElementStyleProxyPairs(obj);
 		return 1;
 	}

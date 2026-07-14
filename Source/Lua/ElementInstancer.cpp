@@ -5,7 +5,7 @@ namespace Lua {
 template <>
 void ExtraInit<ElementInstancer>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, ElementInstancernew);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementInstancernew);
 	lua_setfield(L, metatable_index - 1, "new");
 }
 

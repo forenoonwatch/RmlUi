@@ -8,9 +8,9 @@ namespace Lua {
 template <>
 void ExtraInit<ElementAttributesProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, ElementAttributesProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementAttributesProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, ElementAttributesProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, ElementAttributesProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 

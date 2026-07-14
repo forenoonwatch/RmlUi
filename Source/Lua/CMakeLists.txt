@@ -85,9 +85,23 @@ target_link_libraries(rmlui_lua PUBLIC rmlui_core)
 # without the Lua header files, in particular `RmlUi/Lua/Lua.h` does not require Lua.
 target_link_libraries(rmlui_lua PUBLIC RmlUi::External::Lua)
 
+if(RMLUI_LUA_BINDINGS_LIBRARY STREQUAL "luau")
+	# Luau requires a separate compiler library in order to run scripts from source.
+	target_link_libraries(rmlui_lua PRIVATE Luau.Compiler)
+
+	target_sources(rmlui_lua PRIVATE
+		"${PROJECT_SOURCE_DIR}/Include/RmlUi/Lua/LuauAuxLib.h"
+		"${PROJECT_SOURCE_DIR}/Source/Lua/LuauAuxLib.cpp"
+	)
+endif()
+
 # Set up the necessary compile definition if Lua is compiled as C++.
 if(RMLUI_LUA_BINDINGS_LIBRARY STREQUAL "lua_as_cxx")
 	target_compile_definitions(rmlui_lua PUBLIC "RMLUI_LUA_AS_CXX")
+endif()
+
+if(RMLUI_LUA_BINDINGS_LIBRARY STREQUAL "luau")
+	target_compile_definitions(rmlui_lua PUBLIC "RMLUI_LUAU")
 endif()
 
 # Set up definitions to export functions and classes as appropriate

@@ -47,9 +47,9 @@ luaL_Reg SelectOptionsProxySetters[] = {
 template <>
 void ExtraInit<SelectOptionsProxy>(lua_State* L, int metatable_index)
 {
-	lua_pushcfunction(L, SelectOptionsProxy__index);
+	RMLUI_LUA_PUSHCFUNCTION(L, SelectOptionsProxy__index);
 	lua_setfield(L, metatable_index, "__index");
-	lua_pushcfunction(L, SelectOptionsProxy__pairs);
+	RMLUI_LUA_PUSHCFUNCTION(L, SelectOptionsProxy__pairs);
 	lua_setfield(L, metatable_index, "__pairs");
 }
 

@@ -60,7 +60,7 @@ namespace Lua {
 		lua_getfield(L, -1, "As");
 		if (!lua_isnoneornil(L, -1))
 		{
-			lua_pushcfunction(L, CastFromElementTo<T>);
+			RMLUI_LUA_PUSHCFUNCTION(L, CastFromElementTo<T>);
 			lua_setfield(L, -2, GetTClassName<T>());
 		}
 		lua_settop(L, top); // pop "As" and "Element"

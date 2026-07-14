@@ -21,7 +21,7 @@ void ExtraInit<Element>(lua_State* L, int metatable_index)
 		lua_setfield(L, metatable_index - 1, "As");
 	}
 	lua_pop(L, 1); // pop the result of lua_getfield
-	lua_pushcfunction(L, Elementnew);
+	RMLUI_LUA_PUSHCFUNCTION(L, Elementnew);
 	lua_setfield(L, metatable_index - 1, "new");
 	lua_settop(L, top);
 }

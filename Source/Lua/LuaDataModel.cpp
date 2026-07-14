@@ -1,4 +1,5 @@
 #include "LuaDataModel.h"
+#include "lualib.h"
 #include <RmlUi/Core/Context.h>
 #include <RmlUi/Core/DataModelHandle.h>
 #include <RmlUi/Core/DataVariable.h>
@@ -25,7 +26,7 @@ static void lua_reverse(lua_State* L, int a, int b)
 void lua_rotate(lua_State* L, int idx, int n)
 {
 	int n_elems = 0;
-	idx = lua_absindex(L, idx);
+	idx = Rml::Lua::lua_absindex(L, idx);
 	n_elems = lua_gettop(L) - idx + 1;
 	if (n < 0)
 	{
@@ -73,8 +74,8 @@ inline bool invoke(lua_State* L, call_t f, int argn = 0)
 		lua_pop(L, argn);
 		return false;
 	}
-	lua_pushcfunction(L, errhandler);
-	lua_pushcfunction(L, function_call);
+	RMLUI_LUA_PUSHCFUNCTION(L, errhandler);
+	RMLUI_LUA_PUSHCFUNCTION(L, function_call);
 	lua_pushlightuserdata(L, &f);
 	lua_rotate(L, -argn - 3, 3);
 	if (lua_pcall(L, 1 + argn, 0, lua_gettop(L) - argn - 2) != LUA_OK)
@@ -110,7 +111,7 @@ struct TableProxy {
 static struct TableProxy* NewTableProxy(struct LuaDataModel* model, int key_ref);
 static struct TableProxy* ToTableProxy(lua_State* L, int index)
 {
-	return (struct TableProxy*)luaL_testudata(L, index, RMLTABLEPROXY);
+	return (struct TableProxy*)RMLUI_LUA_TESTUDATA(L, index, RMLTABLEPROXY);
 }
 
 class LuaObjectDef : public VariableDefinition {
@@ -466,10 +467,8 @@ static int TableProxySet(lua_State* L)
 	return 0;
 }
 
-static int TableProxyGc(lua_State* L)
+static int TableProxyGcInternal(lua_State* L, struct TableProxy* proxy)
 {
-	struct TableProxy* proxy = (struct TableProxy*)lua_touserdata(L, 1);
-
 	if (proxy->model->valuestore_ref != LUA_NOREF)
 	{
 		lua_rawgeti(L, LUA_REGISTRYINDEX, proxy->model->valuestore_ref);
@@ -491,6 +490,13 @@ static int TableProxyGc(lua_State* L)
 	return 0;
 }
 
+#ifndef RMLUI_LUAU
+static int TableProxyGc(lua_State* L) {
+	struct TableProxy* proxy = (struct TableProxy*)lua_touserdata(L, 1);
+	return TableProxyGcInternal(L, proxy);
+}
+#endif
+
 static struct TableProxy* NewTableProxy(struct LuaDataModel* model, int key_ref)
 {
 	// -1 = table
@@ -506,7 +512,14 @@ static struct TableProxy* NewTableProxy(struct LuaDataModel* model, int key_ref)
 	lua_rawseti(L, -2, table_ref);
 	lua_pop(L, 1);
 
+#ifdef RMLUI_LUAU
+	struct TableProxy* proxy = (struct TableProxy*)lua_newuserdatadtor(L, sizeof(*proxy), [](void* data) {
+		struct TableProxy* proxy = static_cast<struct TableProxy*>(data);
+		TableProxyGcInternal(proxy->model->L, proxy);
+	});
+#else
 	struct TableProxy* proxy = (struct TableProxy*)lua_newuserdata(L, sizeof(*proxy));
+#endif
 	// -1 = proxy
 	proxy->model = model;
 	proxy->table_ref = table_ref;
@@ -514,6 +527,13 @@ static struct TableProxy* NewTableProxy(struct LuaDataModel* model, int key_ref)
 
 	if (luaL_newmetatable(L, RMLTABLEPROXY))
 	{
+#ifdef RMLUI_LUAU
+		lua_pushcfunction(L, TableProxyGet, "TableProxyGet");
+		lua_setfield(L, -2, "__index");
+
+		lua_pushcfunction(L, TableProxySet, "TableProxySet");
+		lua_setfield(L, -2, "__newindex");
+#else
 		luaL_Reg l[] = {
 			{"__index", TableProxyGet},
 			{"__newindex", TableProxySet},
@@ -521,6 +541,7 @@ static struct TableProxy* NewTableProxy(struct LuaDataModel* model, int key_ref)
 			{nullptr, nullptr},
 		};
 		luaL_setfuncs(L, l, 0);
+#endif
 	}
 	lua_setmetatable(L, -2);
 
@@ -737,12 +758,11 @@ bool OpenLuaDataModel(lua_State* L, Context* context, int name_index, int table_
 
 	if (luaL_newmetatable(L, RMLDATAMODEL))
 	{
-		luaL_Reg l[] = {
-			{"__index", lDataModelGet},
-			{"__newindex", lDataModelSet},
-			{nullptr, nullptr},
-		};
-		luaL_setfuncs(L, l, 0);
+		RMLUI_LUA_PUSHCFUNCTION(L, lDataModelGet);
+		lua_setfield(L, -2, "__index");
+
+		RMLUI_LUA_PUSHCFUNCTION(L, lDataModelSet);
+		lua_setfield(L, -2, "__newindex");
 	}
 	lua_setmetatable(L, -2);
 	// -1 = data model
@@ -771,7 +791,7 @@ void CloseLuaDataModel(lua_State* L, Context* context, int name_index)
 	// -1 = name, -2 = data models table
 	lua_rawget(L, -2);
 	// -1 = data model / nil, -2 = data models table
-	struct LuaDataModel* model = (struct LuaDataModel*)luaL_testudata(L, -1, RMLDATAMODEL);
+	struct LuaDataModel* model = (struct LuaDataModel*)RMLUI_LUA_TESTUDATA(L, -1, RMLDATAMODEL);
 	lua_pop(L, 2);
 
 	if (model == nullptr)
